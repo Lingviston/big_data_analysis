@@ -13,15 +13,15 @@ import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 public class Task1 {
-	public static class IncomingNodeMapper extends Mapper<Object, Text, Text, IntWritable> {
+	public static class IncomingNodeMapper extends Mapper<Object, Text, IntWritable, IntWritable> {
 	
-		private final Text node = new Text();
+		private final IntWritable node = new IntWritable();
 		
 		public void map(Object key, Text value, Context context) 
 			throws IOException, InterruptedException {
 			final String[] edge = value.toString().split("\t");
 			
-			final String target = edge[1];
+			final int target = Integer.parseInt(edge[1]);
 			final int weight = Integer.parseInt(edge[2]);
 			
 			if(weight > 0) {
@@ -31,11 +31,11 @@ public class Task1 {
 		}
 	}
 
-	public static class IncomingNodeReducer extends Reducer<Text, IntWritable, Text, IntWritable> {
+	public static class IncomingNodeReducer extends Reducer<IntWritable, IntWritable, IntWritable, IntWritable> {
 	
 		private final IntWritable result = new IntWritable();
 		
-		public void reduce(Text key, Iterable<IntWritable> values, Context context) 
+		public void reduce(IntWritable key, Iterable<IntWritable> values, Context context) 
 			throws IOException, InterruptedException {
 			
 			int sum = 0;
@@ -56,7 +56,7 @@ public class Task1 {
 		job.setMapperClass(IncomingNodeMapper.class);
 		job.setCombinerClass(IncomingNodeReducer.class);
 		job.setReducerClass(IncomingNodeReducer.class);
-		job.setOutputKeyClass(Text.class);
+		job.setOutputKeyClass(IntWritable.class);
 		job.setOutputValueClass(IntWritable.class);
 
 		FileInputFormat.addInputPath(job, new Path(args[0]));
