@@ -5,16 +5,23 @@ import org.apache.spark.SparkContext._
 import org.apache.spark.SparkConf
 
 object Task2 {
-  def main(args: Array[String]) {
-    val sc = new SparkContext(new SparkConf().setAppName("Task2"))
+	def main(args: Array[String]) {
+		val sc = new SparkContext(new SparkConf().setAppName("Task2"))
+		
+		val threshold = 0
+		
+		val file = sc.textFile("hdfs://localhost:8020" + args(0))
+		
+		val line = file.flatMap(_.split(" "))
 
-    // read the file
-    val file = sc.textFile("hdfs://localhost:8020" + args(0))
+		val tokenized = line.map( x => (x.split("\t")(1).toInt, x.split("\t")(2).toInt) )
 
-    /* TODO: Needs to be implemented */
+		val filtered = tokenized.filter{case (x, y) => y > 0}
 
-    // store output on given HDFS path.
-    // YOU NEED TO CHANGE THIS
-    file.saveAsTextFile("hdfs://localhost:8020" + args(1))
-  }
+		val wordCounts = filtered.reduceByKey( (x, y) => x + y )
+		
+		val results = wordCounts.collect{ case (x,y) => Array (x, y).mkString("\t") }
+		
+		results.saveAsTextFile("hdfs://localhost:8020" + args(1))
+    }
 }
