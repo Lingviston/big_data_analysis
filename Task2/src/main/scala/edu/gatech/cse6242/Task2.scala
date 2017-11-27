@@ -16,9 +16,7 @@ object Task2 {
 
 		val tokenized = line.map( x => (x.split("\t")(1).toInt, x.split("\t")(2).toInt) )
 
-		val filtered = tokenized.filter{case (x, y) => y > 0}
-
-		val wordCounts = filtered.reduceByKey( (x, y) => x + y )
+		val wordCounts = tokenized.reduceByKey( (x, y) => x + y )
 		
 		val results = wordCounts.collect{ case (x,y) => Array (x, y).mkString("\t") }
 		
